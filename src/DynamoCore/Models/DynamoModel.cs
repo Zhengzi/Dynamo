@@ -11,6 +11,7 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using System.Xml;
+using Dynamo.Core;
 using Dynamo.Nodes;
 using Dynamo.Utilities;
 using Dynamo.Selection;
@@ -1447,6 +1448,30 @@ namespace Dynamo.Models
                 node.SaveResult = true;
 
             OnNodeAdded(node);
+            NodeModel c;
+            //HAHA
+            var cs = DynamoSuggesetion.AddModel(node);
+            for (int i=0;i<cs.Count;i++)
+            {
+                c = cs.ElementAt(i);
+                CurrentWorkspace.Nodes.Add(c);
+                c.WorkSpace = CurrentWorkspace;
+                c.EnableInteraction();
+                if (CurrentWorkspace == HomeSpace)
+                    c.SaveResult = true;
+                OnNodeAdded(c);
+
+                var parameters = new Dictionary<string, object>
+                {
+                    {"start", c},
+                    {"end", node},
+                    {"port_start", 0},
+                    {"port_end", i},
+                };
+                CreateConnection(parameters);
+            }
+            //Haha
+
             return node;
         }
 
