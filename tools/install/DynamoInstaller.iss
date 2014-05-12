@@ -24,6 +24,7 @@ Compression=lzma
 SolidCompression=true
 RestartIfNeededByRun=false
 FlatComponentsList=false
+ChangesAssociations=yes
 ShowLanguageDialog=auto
 DirExistsWarning=no
 UninstallFilesDir={app}\Uninstall
@@ -71,6 +72,10 @@ Source: temp\bin\UI\*; DestDir: {app}\UI; Flags: ignoreversion overwritereadonly
 ;Samples
 Source: temp\Samples\*.*; DestDir: {app}\samples; Flags: ignoreversion overwritereadonly recursesubdirs; Components: DynamoTrainingFiles
 
+;Icon
+Source: Extra\dyn.ico; DestDir: {app}; Flags: ignoreversion overwritereadonly;
+Source: Extra\dyf.ico; DestDir: {app}; Flags: ignoreversion overwritereadonly;
+
 [UninstallDelete]
 ;Keep the old deletion steps for those who installed 0.7.0 before the rename
 Type: files; Name: "{commonappdata}\Autodesk\Revit\Addins\2013\Dynamo07.addin"
@@ -94,6 +99,24 @@ Filename: "{app}\DynamoAddinsRestore.bat";
 
 [Icons]
 Name: "{group}\Dynamo"; Filename: "{app}\DynamoSandbox.exe"
+
+[Registry]
+Root: HKCR; Subkey: ".dyn"; ValueType: string; ValueName: ""; ValueData: "DynamoFile"; Flags: uninsdeletevalue
+;".dyn" is the extension we're associating. "DynamoFile" is the internal name for the file type as stored in the registry. Make sure you use a unique name for this so you don't inadvertently overwrite another application's registry key.
+
+Root: HKCR; Subkey: "DynamoFile"; ValueType: string; ValueName: ""; ValueData: "Dynamo File"; Flags: uninsdeletekey
+;"My Program File" above is the name for the file type as shown in Explorer.
+
+Root: HKCR; Subkey: "DynamoFile\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\dyn.ico,0"
+;"DefaultIcon" is the registry key that specifies the filename containing the icon to associate with the file type. ",0" tells Explorer to use the first icon.
+
+Root: HKCR; Subkey: "DynamoFile\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\DynamoSandbox.EXE"" ""%1"""
+;"shell\open\command" is the registry key that specifies the program to execute when a file of the type is double-clicked in Explorer. The surrounding quotes are in the command line so it handles long filenames correctly.
+
+Root: HKCR; Subkey: ".dyf"; ValueType: string; ValueName: ""; ValueData: "DynamoPackageFile"; Flags: uninsdeletevalue
+Root: HKCR; Subkey: "DynamoPackageFile"; ValueType: string; ValueName: ""; ValueData: "Dynamo Package File"; Flags: uninsdeletekey
+Root: HKCR; Subkey: "DynamoPackageFile\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\dyf.ico,0"
+Root: HKCR; Subkey: "DynamoPackageFile\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\DynamoSandbox.EXE"" ""%1"""
 
 [Code]
 { HANDLE INSTALL PROCESS STEPS }
