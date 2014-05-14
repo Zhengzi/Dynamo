@@ -553,7 +553,15 @@ namespace Dynamo.ViewModels
             dynSettings.Controller.UpdateManager.UpdateDownloaded += Instance_UpdateDownloaded;
 
             // Instantiate an AutomationSettings to handle record/playback.
-            automationSettings = new AutomationSettings(this, commandFilePath);
+            if (commandFilePath != null && commandFilePath.Length > 4 && commandFilePath[commandFilePath.Length - 1] == 'n')
+            {
+                automationSettings = new AutomationSettings(this, null);
+                //controller.DynamoModel.Open(commandFilePath);
+            }
+            else
+            {
+                automationSettings = new AutomationSettings(this, commandFilePath);
+            }
 
             OpenCommand = new DelegateCommand(_model.Open, _model.CanOpen);
             ShowOpenDialogAndOpenResultCommand = new DelegateCommand(_model.ShowOpenDialogAndOpenResult, _model.CanShowOpenDialogAndOpenResultCommand);
@@ -643,6 +651,12 @@ namespace Dynamo.ViewModels
             UsageReportingManager.Instance.PropertyChanged += CollectInfoManager_PropertyChanged;
 
             WatchIsResizable = false;
+
+            if (commandFilePath.Length > 4 && commandFilePath[commandFilePath.Length - 1] == 'n')
+            {
+                //automationSettings = new AutomationSettings(this, null);
+                controller.DynamoModel.Open(commandFilePath);
+            }
         }
 
         void Instance_UpdateDownloaded(object sender, UpdateManager.UpdateDownloadedEventArgs e)
