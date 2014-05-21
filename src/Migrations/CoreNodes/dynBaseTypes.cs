@@ -1709,6 +1709,15 @@ namespace Dynamo.Nodes
     
     public class Breakpoint : MigrationNode
     {
+        [NodeMigration(from: "0.6.3.0", to: "0.7.0.0")]
+        public static NodeMigrationData Migrate_0630_to_0700(NodeMigrationData data)
+        {
+            return MigrateToDsFunction(
+                data,
+                "DSCoreNodes.dll",
+                "Object.Identity",
+                "Object.Identity@var[]..[]");
+        }
     }
 
 #if false
@@ -2405,9 +2414,10 @@ namespace Dynamo.Nodes
             NodeMigrationData migrationData = new NodeMigrationData(data.Document);
             XmlElement oldNode = data.MigratedNodes.ElementAt(0);
 
-            var newNode = MigrationManager.CreateFunctionNodeFrom(oldNode);
+            var newNode = MigrationManager.CreateVarArgFunctionNodeFrom(oldNode);
             MigrationManager.SetFunctionSignature(newNode, "DSCoreNodes.dll",
                 "String.Split", "String.Split@string,string[]");
+            newNode.SetAttribute("inputcount", "2");
 
             migrationData.AppendNode(newNode);
 

@@ -253,8 +253,9 @@ namespace Dynamo.Controls
         /// <param name="e"></param>
         private void VisualizationManager_ResultsReadyToVisualize(object sender, VisualizationEventArgs e)
         {
-            Dispatcher.Invoke(new Action<VisualizationEventArgs>(RenderDrawables), DispatcherPriority.Render,
-                                new object[] {e});
+            //Dispatcher.Invoke(new Action<VisualizationEventArgs>(RenderDrawables), DispatcherPriority.Render,
+            //                    new object[] {e});
+            RenderDrawables(e);
         }
 
         /// <summary>
@@ -264,7 +265,7 @@ namespace Dynamo.Controls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void VisualizationManagerRenderComplete(object sender, EventArgs e)
+        private void VisualizationManagerRenderComplete(object sender, RenderCompletionEventArgs e)
         {
             if (dynSettings.Controller == null)
             {
@@ -274,14 +275,13 @@ namespace Dynamo.Controls
             Dispatcher.Invoke(new Action(delegate
             {
                 var vm = (IWatchViewModel) DataContext;
-                   
-                if (vm.GetBranchVisualizationCommand.CanExecute(null))
+
+                if (vm.GetBranchVisualizationCommand.CanExecute(e.TaskId))
                 {
-                    vm.GetBranchVisualizationCommand.Execute(null);
+                    vm.GetBranchVisualizationCommand.Execute(e.TaskId);
                 }
             }));
         }
-
 
         /// <summary>
         /// Callback for thumb control's DragStarted event.
@@ -484,22 +484,38 @@ namespace Dynamo.Controls
                 ConvertMeshes(package, vertsSel, normsSel, trisSel);
             }
 
+            sw.Stop();
+            Debug.WriteLine(string.Format("RENDER: {0} ellapsed for updating background preview.", sw.Elapsed));
+
+            var vm = (IWatchViewModel)DataContext;
+            if (vm.CheckForLatestRenderCommand.CanExecute(e.TaskId))
+            {
+                vm.CheckForLatestRenderCommand.Execute(e.TaskId);
+            }
+
+            Dispatcher.Invoke(new Action<Point3DCollection, Point3DCollection,
+                Point3DCollection, Point3DCollection, Point3DCollection, Point3DCollection,
+                Point3DCollection, Point3DCollection, Vector3DCollection, Int32Collection, 
+                Point3DCollection, Vector3DCollection, Int32Collection, MeshGeometry3D,
+                MeshGeometry3D, List<BillboardTextItem>>(SendGraphicsToView), DispatcherPriority.Render,
+                               new object[] {points, pointsSelected, lines, linesSelected, redLines, 
+                                   greenLines, blueLines, verts, norms, tris, vertsSel, normsSel, 
+                                   trisSel, mesh, meshSel, text});
+        }
+
+        private void SendGraphicsToView(Point3DCollection points, Point3DCollection pointsSelected,
+            Point3DCollection lines, Point3DCollection linesSelected, Point3DCollection redLines, Point3DCollection greenLines,
+            Point3DCollection blueLines, Point3DCollection verts, Vector3DCollection norms, Int32Collection tris,
+            Point3DCollection vertsSel, Vector3DCollection normsSel, Int32Collection trisSel, MeshGeometry3D mesh,
+            MeshGeometry3D meshSel, List<BillboardTextItem> text)
+        {
             points.Freeze();
             pointsSelected.Freeze();
-            Points = points;
-            PointsSelected = pointsSelected;
-
             lines.Freeze();
             linesSelected.Freeze();
             redLines.Freeze();
             greenLines.Freeze();
             blueLines.Freeze();
-            Lines = lines;
-            LinesSelected = linesSelected;
-            XAxes = redLines;
-            YAxes = greenLines;
-            ZAxes = blueLines;
-
             verts.Freeze();
             norms.Freeze();
             tris.Freeze();
@@ -507,23 +523,22 @@ namespace Dynamo.Controls
             normsSel.Freeze();
             trisSel.Freeze();
 
+            Points = points;
+            PointsSelected = pointsSelected;
+            Lines = lines;
+            LinesSelected = linesSelected;
+            XAxes = redLines;
+            YAxes = greenLines;
+            ZAxes = blueLines;
             mesh.Positions = verts;
             mesh.Normals = norms;
             mesh.TriangleIndices = tris;
             meshSel.Positions = vertsSel;
             meshSel.Normals = normsSel;
             meshSel.TriangleIndices = trisSel;
-
             Mesh = mesh;
             MeshSelected = meshSel;
-
             Text = text;
-
-            sw.Stop();
-                
-            GC.Collect();
-
-            Debug.WriteLine(string.Format("{0} ellapsed for updating background preview.", sw.Elapsed));
         }
 
         private void ConvertPoints(RenderPackage p,
