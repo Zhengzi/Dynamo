@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Forms;
 using Dynamo.Models;
@@ -15,7 +14,6 @@ using Dynamo.PackageManager;
 using Dynamo.Search.SearchElements;
 using Dynamo.Selection;
 using Dynamo.UI.Commands;
-using Dynamo.UpdateManager;
 using Dynamo.Utilities;
 using Dynamo.Services;
 using DynamoUnits;
@@ -197,8 +195,6 @@ namespace Dynamo.ViewModels
         public DelegateCommand FitViewCommand { get; set; }
         public DelegateCommand TogglePanCommand { get; set; }
         public DelegateCommand EscapeCommand { get; set; }
-        public DelegateCommand SelectVisualizationInViewCommand { get; set; }
-        public DelegateCommand GetBranchVisualizationCommand { get; set; }
         public DelegateCommand ExportToSTLCommand { get; set; }
         public DelegateCommand ImportLibraryCommand { get; set; }
         public DelegateCommand SetLengthUnitCommand { get; set; }
@@ -207,6 +203,10 @@ namespace Dynamo.ViewModels
         public DelegateCommand ShowAboutWindowCommand { get; set; }
         public DelegateCommand CheckForUpdateCommand { get; set; }
         public DelegateCommand SetNumberFormatCommand { get; set; }
+
+        public DelegateCommand SelectVisualizationInViewCommand { get; set; }
+        public DelegateCommand GetBranchVisualizationCommand { get; set; }
+        public DelegateCommand CheckForLatestRenderCommand { get; set; }
 
         /// <summary>
         /// An observable collection of workspace view models which tracks the model
@@ -532,6 +532,17 @@ namespace Dynamo.ViewModels
             }
         }
 
+        public bool IsDebugBuild
+        {
+            get
+            {
+#if DEBUG
+                return true;
+#else
+                return false;
+#endif
+            }
+        }
         #endregion
 
         public DynamoViewModel(DynamoController controller, string commandFilePath)
@@ -553,15 +564,7 @@ namespace Dynamo.ViewModels
             dynSettings.Controller.UpdateManager.UpdateDownloaded += Instance_UpdateDownloaded;
 
             // Instantiate an AutomationSettings to handle record/playback.
-            if (commandFilePath != null && commandFilePath.Length > 4 && commandFilePath[commandFilePath.Length - 1] == 'n')
-            {
-                automationSettings = new AutomationSettings(this, null);
-                //controller.DynamoModel.Open(commandFilePath);
-            }
-            else
-            {
-                automationSettings = new AutomationSettings(this, commandFilePath);
-            }
+            automationSettings = new AutomationSettings(this, commandFilePath);
 
             OpenCommand = new DelegateCommand(_model.Open, _model.CanOpen);
             ShowOpenDialogAndOpenResultCommand = new DelegateCommand(_model.ShowOpenDialogAndOpenResult, _model.CanShowOpenDialogAndOpenResultCommand);
@@ -615,8 +618,6 @@ namespace Dynamo.ViewModels
             FitViewCommand = new DelegateCommand(FitView, CanFitView);
             TogglePanCommand = new DelegateCommand(TogglePan, CanTogglePan);
             EscapeCommand = new DelegateCommand(Escape, CanEscape);
-            SelectVisualizationInViewCommand = new DelegateCommand(SelectVisualizationInView, CanSelectVisualizationInView);
-            GetBranchVisualizationCommand = new DelegateCommand(GetBranchVisualization, CanGetBranchVisualization);
             ExportToSTLCommand = new DelegateCommand(ExportToSTL, CanExportToSTL);
             ImportLibraryCommand = new DelegateCommand(ImportLibrary, CanImportLibrary);
             SetLengthUnitCommand = new DelegateCommand(SetLengthUnit, CanSetLengthUnit);
@@ -625,6 +626,10 @@ namespace Dynamo.ViewModels
             ShowAboutWindowCommand = new DelegateCommand(ShowAboutWindow, CanShowAboutWindow);
             CheckForUpdateCommand = new DelegateCommand(CheckForUpdate, CanCheckForUpdate);
             SetNumberFormatCommand = new DelegateCommand(SetNumberFormat, CanSetNumberFormat);
+
+            SelectVisualizationInViewCommand = new DelegateCommand(SelectVisualizationInView, CanSelectVisualizationInView);
+            GetBranchVisualizationCommand = new DelegateCommand(GetBranchVisualization, CanGetBranchVisualization);
+            CheckForLatestRenderCommand = new DelegateCommand(CheckForLatestRender, CanCheckForLatestRender);
 
             ((DynamoLogger)dynSettings.DynamoLogger).PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(Instance_PropertyChanged);
 
@@ -651,12 +656,6 @@ namespace Dynamo.ViewModels
             UsageReportingManager.Instance.PropertyChanged += CollectInfoManager_PropertyChanged;
 
             WatchIsResizable = false;
-
-            if (commandFilePath.Length > 4 && commandFilePath[commandFilePath.Length - 1] == 'n')
-            {
-                //automationSettings = new AutomationSettings(this, null);
-                controller.DynamoModel.Open(commandFilePath);
-            }
         }
 
         void Instance_UpdateDownloaded(object sender, UpdateManager.UpdateDownloadedEventArgs e)
@@ -1666,7 +1665,8 @@ namespace Dynamo.ViewModels
 
         public void GetBranchVisualization(object parameters)
         {
-            dynSettings.Controller.VisualizationManager.AggregateUpstreamRenderPackages(null);
+            var taskId = (long) parameters;
+            dynSettings.Controller.VisualizationManager.AggregateUpstreamRenderPackages(new RenderTag(taskId,null));
         }
 
         public bool CanGetBranchVisualization(object parameter)
@@ -1676,6 +1676,16 @@ namespace Dynamo.ViewModels
                 return true;
             }
             return false;
+        }
+
+        private bool CanCheckForLatestRender(object obj)
+        {
+            return true;
+        }
+
+        private void CheckForLatestRender(object obj)
+        {
+            dynSettings.Controller.VisualizationManager.CheckIfLatestAndUpdate((long)obj);
         }
 
         #endregion
@@ -1847,5 +1857,6 @@ namespace Dynamo.ViewModels
         DelegateCommand SelectVisualizationInViewCommand { get; set; }
         DelegateCommand GetBranchVisualizationCommand { get; set; }
         bool WatchIsResizable { get; set; }
+        DelegateCommand CheckForLatestRenderCommand { get; set; }
     }
 }
