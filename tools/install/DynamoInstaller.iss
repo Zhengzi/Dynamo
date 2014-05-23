@@ -113,13 +113,13 @@ Root: HKCR; Subkey: "DynamoFile"; ValueType: string; ValueName: ""; ValueData: "
 Root: HKCR; Subkey: "DynamoFile\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\dyn.ico,0"
 ;"DefaultIcon" is the registry key that specifies the filename containing the icon to associate with the file type. ",0" tells Explorer to use the first icon.
 
-Root: HKCR; Subkey: "DynamoFile\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\DynamoSandbox.EXE"" ""\c"" ""%1"""
+Root: HKCR; Subkey: "DynamoFile\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\DynamoSandbox.EXE"" ""/c"" ""%1"""
 ;"shell\open\command" is the registry key that specifies the program to execute when a file of the type is double-clicked in Explorer. The surrounding quotes are in the command line so it handles long filenames correctly.
 
 Root: HKCR; Subkey: ".dyf"; ValueType: string; ValueName: ""; ValueData: "DynamoPackageFile"; Flags: uninsdeletevalue
 Root: HKCR; Subkey: "DynamoPackageFile"; ValueType: string; ValueName: ""; ValueData: "Dynamo Package File"; Flags: uninsdeletekey
 Root: HKCR; Subkey: "DynamoPackageFile\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\dyf.ico,0"
-Root: HKCR; Subkey: "DynamoPackageFile\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\DynamoSandbox.EXE"" ""\c"" ""%1"""
+Root: HKCR; Subkey: "DynamoPackageFile\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\DynamoSandbox.EXE"" ""/c"" ""%1"""
 
 [Code]
 { HANDLE INSTALL PROCESS STEPS }

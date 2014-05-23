@@ -16,6 +16,14 @@ using String = System.String;
 using DynCmd = Dynamo.ViewModels.DynamoViewModel;
 using Utils = Dynamo.Nodes.Utilities;
 using ProtoCore.AST.AssociativeAST;
+using System.Xml.Linq;
+
+
+using System.IO.Compression;
+using System.IO.Packaging;
+using System.IO;
+
+
 
 namespace Dynamo.Models
 {
@@ -803,8 +811,47 @@ namespace Dynamo.Models
 
             try
             {
-                Dynamo.Nodes.Utilities.SetDocumentXmlPath(document, string.Empty);
-                document.Save(targetFilePath);
+                Dynamo.Nodes.Utilities.SetDocumentXmlPath(document, string.Empty);                
+                string x = targetFilePath.Substring(0, targetFilePath.Length - 3);
+                x += "xml";
+                //document.Save(x);
+                string str = "<Commands ExitAfterPlayback=\"false\" PauseAfterPlaybackInMs=\"10\" CommandIntervalInMs=\"20\">\n<OpenFileCommand XmlFilePath=\"" + x + "\" />\n</Commands>";
+                var xmlDoc = new XmlDocument();
+                XmlNode rootNode = xmlDoc.CreateElement("Commands");
+                xmlDoc.AppendChild(rootNode);
+                XmlAttribute attribute1 = xmlDoc.CreateAttribute("ExitAfterPlayback");
+                XmlAttribute attribute2 = xmlDoc.CreateAttribute("PauseAfterPlaybackInMs");
+                XmlAttribute attribute3 = xmlDoc.CreateAttribute("CommandIntervalInMs");
+                attribute1.Value = "false";
+                attribute2.Value = "10";
+                attribute3.Value = "20";
+                rootNode.Attributes.Append(attribute1);
+                rootNode.Attributes.Append(attribute2);
+                rootNode.Attributes.Append(attribute3);
+
+                XmlNode userNode = xmlDoc.CreateElement("OpenFileCommand");
+                XmlAttribute attribute4 = xmlDoc.CreateAttribute("XmlFilePath");
+                attribute4.Value = x;
+                userNode.Attributes.Append(attribute4);
+                rootNode.AppendChild(userNode);
+
+                string hh = targetFilePath.Substring(0, targetFilePath.Length - 3);
+                hh += "dyy";
+                //xmlDoc.Save(hh);
+
+                string hhf = targetFilePath.Substring(0, targetFilePath.Length - 3);
+                hhf += "dyn";
+
+                //MemoryStream m1 = new MemoryStream();
+                //MemoryStream m2 = new MemoryStream();
+                //xmlDoc.Save(m1);
+                //document.Save(m2);
+
+                CreatePackage(hhf,document,xmlDoc);
+                //m1.Dispose();
+                //m2.Dispose();
+                //File.Delete(hh);
+                //File.Delete(x);
             }
             catch (System.IO.IOException)
             {
@@ -814,6 +861,102 @@ namespace Dynamo.Models
             FileName = targetFilePath;
             return true;
         }
+
+        //  -------------------------- CreatePackage -------------------------- 
+        /// <summary> 
+        ///   Creates a package zip file containing specified 
+        ///   content and resource files.</summary> 
+        private static void CreatePackage(string path3, XmlDocument x1, XmlDocument x2)
+        {
+            // Convert system path and file names to Part URIs. In this example 
+            // Uri partUriDocument /* /Content/Document.xml */ =
+            //     PackUriHelper.CreatePartUri( 
+            //         new Uri("Content\Document.xml", UriKind.Relative));
+            // Uri partUriResource /* /Resources/Image1.jpg */ =
+            //     PackUriHelper.CreatePartUri( 
+            //         new Uri("Resources\Image1.jpg", UriKind.Relative));
+            Uri partUriDocument = PackUriHelper.CreatePartUri(
+                                      new Uri("Content\\Document.xml", UriKind.Relative));
+            Uri partUriResource = PackUriHelper.CreatePartUri(
+                                      new Uri("Resources\\x.xml", UriKind.Relative));
+
+            // Create the Package 
+            // (If the package file already exists, FileMode.Create will 
+            //  automatically delete it first before creating a new one. 
+            //  The 'using' statement insures that 'package' is 
+            //  closed and disposed when it goes out of scope.) 
+            using (Package package =
+                Package.Open(path3, FileMode.Create))
+            {
+                // Add the Document part to the Package
+                PackagePart packagePartDocument =
+                    package.CreatePart(partUriDocument,
+                                   System.Net.Mime.MediaTypeNames.Text.Xml);
+                MemoryStream m1 = new MemoryStream();
+                MemoryStream m2 = new MemoryStream();
+                x1.Save(m1);
+                m1.Flush();
+                m1.Position = 0;
+
+                CopyStream(m1, packagePartDocument.GetStream());
+                /* Copy the data to the Document Part 
+                using (FileStream fileStream = new FileStream(
+                       path1, FileMode.Open, FileAccess.Read))
+                {
+                    CopyStream(fileStream, packagePartDocument.GetStream());
+                }// end:using(fileStream) - Close and dispose fileStream. 
+
+                // Add a Package Relationship to the Document Part
+                */
+
+                package.CreateRelationship(packagePartDocument.Uri,
+                                           TargetMode.Internal,
+                                           "x");
+
+                // Add a Resource Part to the Package
+                PackagePart packagePartResource =
+                    package.CreatePart(partUriResource,
+                                   System.Net.Mime.MediaTypeNames.Text.Xml);
+
+                x2.Save(m2);
+                m2.Flush();
+                m2.Position = 0;
+                CopyStream(m2, packagePartResource.GetStream());
+                /* Copy the data to the Resource Part \
+
+                using (FileStream fileStream = new FileStream(
+                       path2, FileMode.Open, FileAccess.Read))
+                {
+                    CopyStream(fileStream, packagePartResource.GetStream());
+                }// end:using(fileStream) - Close and dispose fileStream. 
+                */
+                // Add Relationship from the Document part to the Resource part
+                packagePartDocument.CreateRelationship(
+                                        new Uri(@"../resources/image1.jpg",
+                                        UriKind.Relative),
+                                        TargetMode.Internal,
+                                        "y");
+                
+            }// end:using (Package package) - Close and dispose package.
+
+        }// end:CreatePackage() 
+
+
+        //  --------------------------- CopyStream --------------------------- 
+        /// <summary> 
+        ///   Copies data from a source stream to a target stream.</summary> 
+        /// <param name="source">
+        ///   The source stream to copy from.</param> 
+        /// <param name="target">
+        ///   The destination stream to copy to.</param> 
+        private static void CopyStream(Stream source, Stream target)
+        {
+            const int bufSize = 0x1000;
+            byte[] buf = new byte[bufSize];
+            int bytesRead = 0;
+            while ((bytesRead = source.Read(buf, 0, bufSize)) > 0)
+                target.Write(buf, 0, bytesRead);
+        }// end:CopyStream()
 
         protected virtual bool PopulateXmlDocument(XmlDocument xmlDoc)
         {
