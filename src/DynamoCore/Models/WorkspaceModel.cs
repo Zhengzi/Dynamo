@@ -871,12 +871,11 @@ namespace Dynamo.Models
                 PackagePart packagePartDocument =
                     package.CreatePart(partUriCommand,
                                    System.Net.Mime.MediaTypeNames.Text.Xml);
-                MemoryStream commandStream = new MemoryStream();
 
+                MemoryStream commandStream = new MemoryStream();
                 xmlCommand.Save(commandStream);
                 commandStream.Flush();
                 commandStream.Position = 0;
-
                 CopyStream(commandStream, packagePartDocument.GetStream());
 
                 package.CreateRelationship(packagePartDocument.Uri,
@@ -909,12 +908,6 @@ namespace Dynamo.Models
             while ((bytesRead = source.Read(buf, 0, bufSize)) > 0)
                 target.Write(buf, 0, bytesRead);
         }// end:CopyStream()
-
-
-
-
-
-
 
         protected virtual bool PopulateXmlDocument(XmlDocument xmlDoc)
         {
