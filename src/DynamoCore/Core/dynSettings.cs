@@ -9,6 +9,13 @@ namespace Dynamo.Utilities
 {
     public static class dynSettings
     {
+        private static string fileOpenPath = string.Empty;
+        public static string FileOpenPath 
+        {
+            get { return fileOpenPath;}
+            set { fileOpenPath = value; }
+        }
+        
         public static ObservableDictionary<string, Guid> CustomNodes
         {
             get { return Controller.CustomNodeManager.GetAllNodeNames(); }

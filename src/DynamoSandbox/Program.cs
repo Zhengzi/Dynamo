@@ -89,6 +89,8 @@ namespace DynamoSandbox
 
         private static void RunDynamoWithFile(string dynamoFile)
         {
+            dynSettings.FileOpenPath = dynamoFile;
+            DynamoView.MakeSandboxAndRun(dynamoFile);
         }
 
         private static void RunDynamoWithCommand(string commandFilePath)
