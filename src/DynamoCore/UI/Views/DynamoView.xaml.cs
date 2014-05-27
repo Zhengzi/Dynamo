@@ -246,6 +246,7 @@ namespace Dynamo.Controls
             //ABOUT WINDOW
             _vm.RequestAboutWindow += _vm_RequestAboutWindow;
 
+
             // Kick start the automation run, if possible.
             _vm.BeginCommandPlayback(this);
         }

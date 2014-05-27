@@ -17,23 +17,36 @@ namespace DynamoSandbox
                 // Running Dynamo sandbox with a command file:
                 // DynamoSandbox.exe /c "C:\file path\file.xml"
                 // 
-                string commandFilePath = string.Empty;
-                for (int i = 0; i < args.Length; ++i)
+
+                switch (args.Length)
                 {
-                    // Looking for '/c'
-                    string arg = args[i];
-                    if (arg.Length != 2 || (arg[0] != '/'))
-                        continue;
-
-                    if (arg[1] == 'c' || (arg[1] == 'C'))
-                    {
-                        // If there's at least one more argument...
-                        if (i < args.Length - 1)
-                            commandFilePath = args[i + 1];
-                    }
+                    case 0:
+                        RunDynamo();
+                        break;
+                    case 1:
+                        string filePath = args[0];
+                        if (System.IO.File.Exists(filePath))
+                            RunDynamoWithFile(filePath);
+                        else
+                            RunDynamo();
+                        break;
+                    case 2:
+                        string arg = args[0];
+                        string commandFilePath = args[1];
+                        if ((arg[0] == '/') && (arg[1] == 'c' || (arg[1] == 'C')))
+                        {
+                            if (System.IO.File.Exists(commandFilePath))
+                                RunDynamoWithCommand(commandFilePath);
+                            else
+                                RunDynamo();
+                        }
+                        else
+                            RunDynamo();
+                        break;
+                    default:
+                        RunDynamo();
+                        break;
                 }
-
-                DynamoView.MakeSandboxAndRun(commandFilePath);
             }
             catch (Exception e)
             {
@@ -67,6 +80,20 @@ namespace DynamoSandbox
             {
                 ((DynamoLogger) dynSettings.DynamoLogger).Dispose();
             }
+        }
+
+        private static void RunDynamo()
+        {
+            DynamoView.MakeSandboxAndRun(string.Empty);
+        }
+
+        private static void RunDynamoWithFile(string dynamoFile)
+        {
+        }
+
+        private static void RunDynamoWithCommand(string commandFilePath)
+        {
+            DynamoView.MakeSandboxAndRun(commandFilePath);
         }
     }
 }
