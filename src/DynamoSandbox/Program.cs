@@ -14,10 +14,6 @@ namespace DynamoSandbox
         {
             try
             {
-                // Running Dynamo sandbox with a command file:
-                // DynamoSandbox.exe /c "C:\file path\file.xml"
-                // 
-
                 switch (args.Length)
                 {
                     case 0:
