@@ -73,8 +73,8 @@ Source: temp\bin\UI\*; DestDir: {app}\UI; Flags: ignoreversion overwritereadonly
 Source: temp\Samples\*.*; DestDir: {app}\samples; Flags: ignoreversion overwritereadonly recursesubdirs; Components: DynamoTrainingFiles
 
 ;Icon
-Source: Extra\dyn.ico; DestDir: {app}; Flags: ignoreversion overwritereadonly;
-Source: Extra\dyf.ico; DestDir: {app}; Flags: ignoreversion overwritereadonly;
+Source: Extra\DynamoFileIcon.ico; DestDir: {app}; Flags: ignoreversion overwritereadonly;
+Source: Extra\DynamoFunctionFileIcon.ico; DestDir: {app}; Flags: ignoreversion overwritereadonly;
 
 ;Other Custom Nodes
 Source: temp\definitions\*; DestDir: {app}\definitions; Flags: ignoreversion overwritereadonly recursesubdirs; Components: DynamoCore
@@ -110,7 +110,7 @@ Root: HKCR; Subkey: ".dyn"; ValueType: string; ValueName: ""; ValueData: "Dynamo
 Root: HKCR; Subkey: "DynamoFile"; ValueType: string; ValueName: ""; ValueData: "Dynamo File"; Flags: uninsdeletekey
 ;"My Program File" above is the name for the file type as shown in Explorer.
 
-Root: HKCR; Subkey: "DynamoFile\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\dyn.ico,0"
+Root: HKCR; Subkey: "DynamoFile\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\DynamoFileIcon.ico,0"
 ;"DefaultIcon" is the registry key that specifies the filename containing the icon to associate with the file type. ",0" tells Explorer to use the first icon.
 
 Root: HKCR; Subkey: "DynamoFile\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\DynamoSandbox.EXE"" ""%1"""
@@ -118,7 +118,7 @@ Root: HKCR; Subkey: "DynamoFile\shell\open\command"; ValueType: string; ValueNam
 
 Root: HKCR; Subkey: ".dyf"; ValueType: string; ValueName: ""; ValueData: "DynamoFunctionFile"; Flags: uninsdeletevalue
 Root: HKCR; Subkey: "DynamoFunctionFile"; ValueType: string; ValueName: ""; ValueData: "Dynamo Function File"; Flags: uninsdeletekey
-Root: HKCR; Subkey: "DynamoFunctionFile\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\dyf.ico,0"
+Root: HKCR; Subkey: "DynamoFunctionFile\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\DynamoFunctionFileIcon.ico,0"
 Root: HKCR; Subkey: "DynamoFunctionFile\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\DynamoSandbox.EXE"" ""%1"""
 
 [Code]
