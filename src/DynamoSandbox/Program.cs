@@ -23,6 +23,9 @@ namespace DynamoSandbox
                     case 0:
                         RunDynamo();
                         break;
+
+                    // Running Dynamo sandbox with a file path:
+                    // DynamoSandbox.exe "C:\file path\file.dyn"
                     case 1:
                         string filePath = args[0];
                         if (System.IO.File.Exists(filePath))
@@ -30,6 +33,9 @@ namespace DynamoSandbox
                         else
                             RunDynamo();
                         break;
+
+                    // Running Dynamo sandbox with a command file:
+                    // DynamoSandbox.exe /c "C:\file path\file.xml"
                     case 2:
                         string arg = args[0];
                         string commandFilePath = args[1];
