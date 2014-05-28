@@ -91,7 +91,6 @@ namespace Dynamo.Controls
                 dynSettings.FileOpenPath = string.Empty;
             }
 
-
             this.Unloaded += DynamoView_Unloaded;
 
             this.SizeChanged += DynamoView_SizeChanged;
@@ -218,7 +217,6 @@ namespace Dynamo.Controls
             _timer.Stop();
             dynSettings.DynamoLogger.Log(String.Format("{0} elapsed for loading Dynamo main window.",
                                                                      _timer.Elapsed));
-
             InitializeShortcutBar();
 
 #if !__NO_SAMPLES_MENU
@@ -228,7 +226,6 @@ namespace Dynamo.Controls
 
             var search = new SearchView { DataContext = dynSettings.Controller.SearchViewModel };
             sidebarGrid.Children.Add(search);
-            sidebarGrid.Width = System.Double.NaN;
             dynSettings.Controller.SearchViewModel.Visible = true;
 
             #endregion
