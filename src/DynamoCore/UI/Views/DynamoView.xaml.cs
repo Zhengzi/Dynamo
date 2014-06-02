@@ -83,14 +83,6 @@ namespace Dynamo.Controls
             //LibraryManagerMenu.Visibility = System.Windows.Visibility.Collapsed;
 
             this.Loaded += DynamoView_Loaded;
-
-            //open the .dyn file
-            if (!String.IsNullOrEmpty(dynSettings.FileOpenPath))
-            {
-                dynSettings.Controller.DynamoModel.Open(dynSettings.FileOpenPath);
-                dynSettings.FileOpenPath = string.Empty;
-            }
-
             this.Unloaded += DynamoView_Unloaded;
 
             this.SizeChanged += DynamoView_SizeChanged;

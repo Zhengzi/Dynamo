@@ -73,6 +73,12 @@ namespace Dynamo.Search
             dynSettings.Controller.SearchViewModel.RequestFocusSearch += SearchViewModel_RequestFocusSearch;
             dynSettings.Controller.SearchViewModel.RequestReturnFocusToSearch += SearchViewModel_RequestReturnFocusToSearch;
 
+            //open the .dyn file
+            if (!String.IsNullOrEmpty(dynSettings.FileOpenPath))
+            {
+                dynSettings.Controller.DynamoModel.Open(dynSettings.FileOpenPath);
+                dynSettings.FileOpenPath = string.Empty;
+            }
         }
 
         void SearchView_MouseLeave(object sender, MouseEventArgs e)
