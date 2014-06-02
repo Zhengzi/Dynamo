@@ -1346,6 +1346,7 @@ namespace Dynamo.Models
                         if (el != null)
                         {
                             el.WorkSpace = CurrentWorkspace;
+                            el.OverrideNameWithNickName = true;
                             el.Load(elNode);
                         }
                         else
