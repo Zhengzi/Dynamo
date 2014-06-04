@@ -1346,7 +1346,11 @@ namespace Dynamo.Models
                         if (el != null)
                         {
                             el.WorkSpace = CurrentWorkspace;
+
+                            //set the attribute to true, 
+                            //so that the node's customised nickname could be loaded.
                             el.OverrideNameWithNickName = true;
+
                             el.Load(elNode);
                         }
                         else
