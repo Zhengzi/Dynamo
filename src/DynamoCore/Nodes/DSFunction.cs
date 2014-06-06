@@ -121,7 +121,7 @@ namespace Dynamo.Nodes
 
             RegisterAllPorts();
 
-            NickName = Definition.DisplayName;
+            //NickName = Definition.DisplayName;
         }
 
         /// <summary>
