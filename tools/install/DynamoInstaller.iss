@@ -19,7 +19,7 @@ DefaultDirName=C:\Autodesk\Dynamo07\Core
 DefaultGroupName=Dynamo
 OutputDir=Installers
 OutputBaseFilename=InstallDynamo0.7.0
-SetupIconFile=Extra\logo_square_32x32.ico
+SetupIconFile=Extra\DynamoInstaller.ico
 Compression=lzma
 SolidCompression=true
 RestartIfNeededByRun=false
@@ -28,7 +28,7 @@ ChangesAssociations=yes
 ShowLanguageDialog=auto
 DirExistsWarning=no
 UninstallFilesDir={app}\Uninstall
-UninstallDisplayIcon={app}\logo_square_32x32.ico
+UninstallDisplayIcon={app}\DynamoInstaller.ico
 UninstallDisplayName=Dynamo 0.7.0
 UsePreviousAppDir=no
 
@@ -75,6 +75,7 @@ Source: temp\Samples\*.*; DestDir: {app}\samples; Flags: ignoreversion overwrite
 ;Icon
 Source: Extra\DynamoFileIcon.ico; DestDir: {app}; Flags: ignoreversion overwritereadonly;
 Source: Extra\DynamoFunctionFileIcon.ico; DestDir: {app}; Flags: ignoreversion overwritereadonly;
+Source: Extra\DynamoInstaller.ico; DestDir: {app}; Flags: ignoreversion overwritereadonly;
 
 ;Other Custom Nodes
 Source: temp\definitions\*; DestDir: {app}\definitions; Flags: ignoreversion overwritereadonly recursesubdirs; Components: DynamoCore
