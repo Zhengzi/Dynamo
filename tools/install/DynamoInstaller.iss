@@ -30,6 +30,7 @@ UninstallFilesDir={app}\Uninstall
 UninstallDisplayIcon={app}\logo_square_32x32.ico
 UninstallDisplayName=Dynamo 0.7.0
 UsePreviousAppDir=no
+CloseApplications=no
 
 [Types]
 Name: "full"; Description: "Full installation"
@@ -98,6 +99,9 @@ Filename: "{app}\DynamoAddinsRestore.bat";
 [Icons]
 Name: "{group}\Dynamo"; Filename: "{app}\DynamoSandbox.exe"
 
+[Messages]
+ErrorReplacingExistingFile=An error occurred while trying to replace the existing file, You may want to close Autodesk Revit/Vasari and Retry the installation:
+
 [Code]
 { HANDLE INSTALL PROCESS STEPS }
 
@@ -136,9 +140,12 @@ begin
 end;
 
 function InitializeSetup(): Boolean;
+var
+ErrorCode: Integer;
 begin
   if (Revit2015Installed() or Revit2014Installed() or Revit2013Installed() or FormItInstalled()) then
     begin
+	//ShellExec('open','taskkill.exe','/im Revit.exe','',SW_HIDE,ewNoWait,ErrorCode);
     result := true;
     end
   else
@@ -154,6 +161,13 @@ begin
   Result := (GetUninstallString() <> '');
 end;
 
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+var
+ErrorCode: Integer;
+begin
+	ShellExec('open','taskkill.exe','/im Revit.exe','',SW_HIDE,ewNoWait,ErrorCode);
+	//Result := 'xzz';
+end;
 
 /////////////////////////////////////////////////////////////////////
 function UnInstallOldVersion(): Integer;
