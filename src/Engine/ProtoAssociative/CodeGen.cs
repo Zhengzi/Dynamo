@@ -4095,77 +4095,6 @@ namespace ProtoAssociative
                 }
             }
             return isAllocated;
-            //int symbolIndex = Constants.kInvalidIndex;
-            //symbol = null;
-            //isAccessible = false;
-
-            //if (classScope != Constants.kGlobalScope)
-            //{
-            //    if ((int)ProtoCore.PrimitiveType.kTypeVoid == classScope)
-            //    {
-            //        return false;
-            //    }
-            //    ClassNode thisClass = core.ClassTable.list[classScope];
-
-            //    bool hasThisSymbol;
-            //    AddressType addressType;
-            //    symbolIndex = thisClass.GetSymbolIndex(name, classScope, functionScope, out hasThisSymbol, out addressType);
-
-            //    if (Constants.kInvalidIndex != symbolIndex)
-            //    {
-            //        // It is static member, then get node from code block
-            //        if (AddressType.StaticMemVarIndex == addressType)
-            //        {
-            //            symbol = core.CodeBlockList[0].symbolTable.symbolList[symbolIndex];
-            //        }
-            //        else
-            //        {
-            //            symbol = thisClass.symbols.symbolList[symbolIndex];
-            //        }
-
-            //        isAccessible = true;
-            //    }
-
-            //    if (hasThisSymbol)
-            //    {
-            //        return true;
-            //    }
-            //    else
-            //    {
-            //        symbolIndex = codeBlock.symbolTable.IndexOf(name, Constants.kGlobalScope, Constants.kGlobalScope);
-            //        if (symbolIndex != Constants.kInvalidIndex)
-            //        {
-            //            symbol = codeBlock.symbolTable.symbolList[symbolIndex];
-            //            isAccessible = true;
-            //            return true;
-            //        }
-            //    }
-            //}
-            //else
-            //{
-            //    if (functionScope != Constants.kGlobalScope)
-            //    {
-            //        symbol = core.GetSymbolInFunction(name, Constants.kGlobalScope, functionScope, codeBlock);
-            //        if (symbol != null)
-            //        {
-            //            isAccessible = true;
-            //            return true;
-            //        }
-            //    }
-
-            //    CodeBlock searchBlock = codeBlock;
-            //    while (symbolIndex == Constants.kInvalidIndex && searchBlock != null)
-            //    {
-            //        symbolIndex = searchBlock.symbolTable.IndexOf(name, Constants.kGlobalScope, Constants.kGlobalScope);
-            //        if (symbolIndex != Constants.kInvalidIndex)
-            //        {
-            //            symbol = searchBlock.symbolTable.symbolList[symbolIndex];
-            //            isAccessible = true;
-            //            return true;
-            //        }
-            //        searchBlock = searchBlock.parent;
-            //    }
-            //}
         }
 
         private bool EmitReplicationGuideForIdentifier(IdentifierNode t)
@@ -6747,38 +6676,53 @@ namespace ProtoAssociative
                     }
                 };
 
-                // True condition language block
-                BinaryExpressionNode bExprTrue = new BinaryExpressionNode();
-                bExprTrue.LeftNode = nodeBuilder.BuildReturn();
-                bExprTrue.Optr = Operator.assign;
-                bExprTrue.RightNode = inlineConditionalNode.TrueExpression;
+                // As SSA conversion is enabled, we have got the values of
+                // true and false branch, so it isn't necessary to create 
+                // language blocks.
+                if (core.Options.IsDeltaExecution && core.Options.GenerateSSA)
+                {
+                    inlineCall.FormalArguments.Add(inlineConditionalNode.ConditionExpression);
+                    inlineCall.FormalArguments.Add(inlineConditionalNode.TrueExpression);
+                    inlineCall.FormalArguments.Add(inlineConditionalNode.FalseExpression);
+                }
+                else
+                {
+                    // True condition language block
+                    BinaryExpressionNode bExprTrue = new BinaryExpressionNode();
+                    bExprTrue.LeftNode = nodeBuilder.BuildReturn();
+                    bExprTrue.Optr = Operator.assign;
+                    bExprTrue.RightNode = inlineConditionalNode.TrueExpression;
 
-                LanguageBlockNode langblockT = new LanguageBlockNode();
-                int trueBlockId = ProtoCore.DSASM.Constants.kInvalidIndex;
-                langblockT.codeblock.language = ProtoCore.Language.kAssociative;
-                langblockT.codeblock.fingerprint = "";
-                langblockT.codeblock.version = "";
-                core.AssocNode = bExprTrue;
-                EmitDynamicLanguageBlockNode(langblockT, bExprTrue, ref inferedType, ref trueBlockId, graphNode, AssociativeSubCompilePass.kNone);
-                core.AssocNode = null;
-                ProtoCore.AST.AssociativeAST.DynamicBlockNode dynBlockT = new ProtoCore.AST.AssociativeAST.DynamicBlockNode(trueBlockId);
+                    LanguageBlockNode langblockT = new LanguageBlockNode();
+                    int trueBlockId = Constants.kInvalidIndex;
+                    langblockT.codeblock.language = ProtoCore.Language.kAssociative;
+                    langblockT.codeblock.fingerprint = "";
+                    langblockT.codeblock.version = "";
+                    core.AssocNode = bExprTrue;
+                    EmitDynamicLanguageBlockNode(langblockT, bExprTrue, ref inferedType, ref trueBlockId, graphNode, AssociativeSubCompilePass.kNone);
+                    core.AssocNode = null;
+                    DynamicBlockNode dynBlockT = new DynamicBlockNode(trueBlockId);
 
+                    // False condition language block
+                    BinaryExpressionNode bExprFalse = new BinaryExpressionNode();
+                    bExprFalse.LeftNode = nodeBuilder.BuildReturn();
+                    bExprFalse.Optr = Operator.assign;
+                    bExprFalse.RightNode = inlineConditionalNode.FalseExpression;
 
-                // False condition language block
-                BinaryExpressionNode bExprFalse = new BinaryExpressionNode();
-                bExprFalse.LeftNode = nodeBuilder.BuildReturn();
-                bExprFalse.Optr = Operator.assign;
-                bExprFalse.RightNode = inlineConditionalNode.FalseExpression;
+                    LanguageBlockNode langblockF = new LanguageBlockNode();
+                    int falseBlockId = Constants.kInvalidIndex;
+                    langblockF.codeblock.language = ProtoCore.Language.kAssociative;
+                    langblockF.codeblock.fingerprint = "";
+                    langblockF.codeblock.version = "";
+                    core.AssocNode = bExprFalse;
+                    EmitDynamicLanguageBlockNode(langblockF, bExprFalse, ref inferedType, ref falseBlockId, graphNode, AssociativeSubCompilePass.kNone);
+                    core.AssocNode = null;
+                    DynamicBlockNode dynBlockF = new DynamicBlockNode(falseBlockId);
 
-                LanguageBlockNode langblockF = new LanguageBlockNode();
-                int falseBlockId = ProtoCore.DSASM.Constants.kInvalidIndex;
-                langblockF.codeblock.language = ProtoCore.Language.kAssociative;
-                langblockF.codeblock.fingerprint = "";
-                langblockF.codeblock.version = "";
-                core.AssocNode = bExprFalse;
-                EmitDynamicLanguageBlockNode(langblockF, bExprFalse, ref inferedType, ref falseBlockId, graphNode, AssociativeSubCompilePass.kNone);
-                core.AssocNode = null;
-                ProtoCore.AST.AssociativeAST.DynamicBlockNode dynBlockF = new ProtoCore.AST.AssociativeAST.DynamicBlockNode(falseBlockId);
+                    inlineCall.FormalArguments.Add(inlineConditionalNode.ConditionExpression);
+                    inlineCall.FormalArguments.Add(dynBlockT);
+                    inlineCall.FormalArguments.Add(dynBlockF);
+                }
 
                 core.DebugProps.breakOptions = oldOptions;
                 core.DebugProps.highlightRange = new ProtoCore.CodeModel.CodeRange
@@ -6795,10 +6739,6 @@ namespace ProtoAssociative
                         CharNo = Constants.kInvalidIndex
                     }
                 };
-
-                inlineCall.FormalArguments.Add(inlineConditionalNode.ConditionExpression);
-                inlineCall.FormalArguments.Add(dynBlockT);
-                inlineCall.FormalArguments.Add(dynBlockF);
 
                 // Save the pc and store it after the call
                 EmitFunctionCallNode(inlineCall, ref inferedType, false, graphNode, AssociativeSubCompilePass.kUnboundIdentifier);
