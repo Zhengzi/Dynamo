@@ -73,7 +73,7 @@ namespace Dynamo.Search
             dynSettings.Controller.SearchViewModel.RequestFocusSearch += SearchViewModel_RequestFocusSearch;
             dynSettings.Controller.SearchViewModel.RequestReturnFocusToSearch += SearchViewModel_RequestReturnFocusToSearch;
             
-            //open the .dyn file
+            //open the .dyn file/.dyf file when launch Dynamo
             if (!String.IsNullOrEmpty(dynSettings.FileOpenPath))
             {
                 dynSettings.Controller.DynamoViewModel.OpenCommand.Execute(dynSettings.FileOpenPath);
