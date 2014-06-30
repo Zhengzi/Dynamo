@@ -289,13 +289,6 @@ namespace Dynamo.Controls
             //ABOUT WINDOW
             _vm.RequestAboutWindow += _vm_RequestAboutWindow;
 
-            //open the .dyn file
-            if (!String.IsNullOrEmpty(dynSettings.FileOpenPath))
-            {
-                dynSettings.Controller.DynamoViewModel.OpenCommand.Execute(dynSettings.FileOpenPath);
-                dynSettings.FileOpenPath = string.Empty;
-            }
-
             // Kick start the automation run, if possible.
             _vm.BeginCommandPlayback(this);
         }
