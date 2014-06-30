@@ -4555,13 +4555,6 @@ namespace ProtoTest.DebugTests
         }
 
         [Test]
-        public void DebugEQDNITest()
-        {
-            string code = @"	class DNI	{		startx : int;		constructor DNI( p1 : int)		{			startx = p1;        }	}    external (""ProtoAcDcGeometry"") def getProtoGeometryLibrary : int ();	    external native (""ProtoGeometryEntity"") def DC_DNI_Test : double (id : int);    hostid1 = getProtoGeometryLibrary();	x = DNI.DNI(12);    y = DC_DNI_Test(x);";
-            DebugTestFx.CompareDebugAndRunResults(code);
-        }
-
-        [Test]
         public void DebugEQDefect_Geo_Replication()
         {
             string code = @"import(""ProtoGeometry.dll"");WCS = CoordinateSystem.Identity();// create initialPointsdiafac1 = 1;h1 = 15;hL1=10;pt0 = Point.ByCartesianCoordinates(WCS,-5*diafac1,-5*diafac1,0);pt1 = Point.ByCartesianCoordinates(WCS,5*diafac1,-5*diafac1,0);pt2 = Point.ByCartesianCoordinates(WCS,5*diafac1,5*diafac1,0);pt3 = Point.ByCartesianCoordinates(WCS,-5*diafac1,5*diafac1,0);pt4 = Point.ByCartesianCoordinates(WCS,-5*diafac1,-5*diafac1,hL1);pt5 = Point.ByCartesianCoordinates(WCS,5*diafac1,-5*diafac1,hL1);pt6 = Point.ByCartesianCoordinates(WCS,5*diafac1,5*diafac1,hL1);pt7 = Point.ByCartesianCoordinates(WCS,-5*diafac1,5*diafac1,hL1);pt8 = Point.ByCartesianCoordinates(WCS,-15,-15,h1);pt9 = Point.ByCartesianCoordinates(WCS,15,-15,h1);pt10= Point.ByCartesianCoordinates(WCS,15,15,h1);pt11 = Point.ByCartesianCoordinates(WCS,-15,15,h1);pointGroup = {pt0,pt1,pt2,pt3,pt4,pt5,pt6,pt7,pt8,pt9,pt10,pt11};facesIndices = {{0,1,5,4},{1,2,6,5},{2,3,7,6},{3,0,4,7},{4,5,9,8},{5,6,10,9},{6,7,11,10},{7,4,8,11}};groupOfPointGroups =  { { pt0, pt1, pt2 }, { pt3, pt4, pt5 }, { pt6, pt7, pt8 }, { pt9, pt10, pt11 } };simplePointGroup = {pt5, pt6, pt10, pt9};// note: Polygon.ByVertices expects a 1D array of points.. so let`s test this controlPolyA = Polygon.ByVertices({pt0, pt1, pt5, pt4}); // OK with 1D collectioncontrolPolyB = Polygon.ByVertices(simplePointGroup); // OK with 1D collection	controlPolyC = Polygon.ByVertices({{pt1, pt2, pt6, pt5},{pt2, pt3, pt7, pt6}}); // not OK with literal 2D collection														// get compiler error `unable to locate mamaged object for given dsObject`	controlPolyD = Polygon.ByVertices(pointGroup[3]);    // not OK with a 1D subcollection a a member indexed from a 2D collection														// controlPolyD = null	controlPolyE = Polygon.ByVertices(pointGroup[facesIndices]); // not OK with an array of indices																// controlPolyE = nullcontrolPolyF = Polygon.ByVertices(groupOfPointGroups);// result = foo({ controlPolyA, controlPolyB, controlPolyC, controlPolyD, controlPolyE });/*def foo(x:Polygon){	if (x!= null)	{	    return = true;	}	else return = false;}*///a simple casec=2 * {{1},{2}};";
@@ -4655,34 +4648,6 @@ namespace ProtoTest.DebugTests
         public void DebugEQImportTest001()
         {
             string code = @"import(""import001.ds"");import(""import002.ds"");a = 10;b = 20;c = add(a, b);d = mul(a, b);";
-            DebugTestFx.CompareDebugAndRunResults(code);
-        }
-
-        [Test]
-        public void DebugEQLineTest()
-        {
-            string code = @"		external (""ProtoAcDcGeometry"") def getProtoGeometryLibrary : int ();    class Point    {		        mx : var;        my : var;        mz : var;        id : var;        external native (""ProtoGeometryEntity"") def DC_Point : int (x : double, y : double, z : double);                constructor Point(xx : double, yy : double, zz : double)        {            mx = xx;            my = yy;            mz = zz;            id = DC_Point(xx, yy, zz);        }    }	hostid1 = getProtoGeometryLibrary();	point1 = Point.Point(43.0314374592,94.2314010018,0.0550158535042);";
-            DebugTestFx.CompareDebugAndRunResults(code);
-        }
-
-        [Test]
-        public void DebugEQLineTest1()
-        {
-            string code = @"[Associative]{		external (""ProtoAcDcGeometry"") def getProtoGeometryLibrary : int ();    external native (""ProtoGeometryEntity"") def DC_Line : int (y : int, z : int);	hostid1 = getProtoGeometryLibrary();	lineid = DC_Line(2,3);}";
-            DebugTestFx.CompareDebugAndRunResults(code);
-        }
-
-        [Test]
-        public void DebugEQLineTest2()
-        {
-            string code = @"		external (""ProtoAcDcGeometry"") def getProtoGeometryLibrary : int ();    external native (""ProtoGeometryEntity"") def DC_Line : int (y : int, z : int);    //id1 : int;    //id2 : int;    class Point    {		        mx : var;        my : var;        mz : var;        id : var;        external native (""ProtoGeometryEntity"") def DC_Point : int (x : double, y : double, z : double);                constructor Point(xx : double, yy : double, zz : double)        {            mx = xx;            my = yy;            mz = zz;            id = DC_Point(xx, yy, zz);        }    }	hostid1 = getProtoGeometryLibrary();    point1 = Point.Point(43.0314374592,94.2314010018,0.0550158535042);    point2 = Point.Point(43.0314374592,9.5,0.0550158535042);    id1 = point1.id;    id2 = point2.id;    lineid2 = DC_Line(id1, id2);";
-            DebugTestFx.CompareDebugAndRunResults(code);
-        }
-
-        [Test]
-        public void DebugEQLineTest3()
-        {
-            string code = @"		external (""ProtoAcDcGeometry"") def getProtoGeometryLibrary : int ();    class Point    {		        mx : var;        my : var;        mz : var;        id : var;        external native (""ProtoGeometryEntity"") def DC_Point : int (x : double, y : double, z : double);                constructor Point(xx : double, yy : double, zz : double)        {            mx = xx;            my = yy;            mz = zz;            id = DC_Point(xx, yy, zz);        }    }    class Line    {		        start : var;        end : var;        id : var;        external native (""ProtoGeometryEntity"") def DC_Line : int (y : int, z : int);                constructor Line(sp : int, ep : int)        {            start = sp;            end = ep;            id = DC_Line(sp, ep);        }    }	hostid1 = getProtoGeometryLibrary();    point1 = Point.Point.Point(43.0314374592,94.2314010018,0.0550158535042);    point2 = PointPoint.Point(43.0314374592,9.5,0.0550158535042);    line1 = Line.Line(point1.id, point2.id);";
             DebugTestFx.CompareDebugAndRunResults(code);
         }
 
@@ -15670,13 +15635,6 @@ namespace ProtoTest.DebugTests
         }
 
         [Test]
-        public void DebugEQTestProtoGeometryHostUpdate()
-        {
-            string code = @"[Associative]{    external (""ProtoAcDcGeometry"") def getProtoGeometryLibrary : int ();    external native (""ProtoHostAccess"") def DC_getHostEntityID : hostentityid ();    external native (""ProtoGeometryEntity"") def DC_Point_update : int (xid1 : hostentityid, xx1 : double, yy1 : double, zz1 : double);	    hostid1 = getProtoGeometryLibrary();    id1 = DC_getHostEntityID();    xxx1 = DC_Point_update(1, 1.5, 1.5, 1.5);}";
-            DebugTestFx.CompareDebugAndRunResults(code);
-        }
-
-        [Test]
         public void DebugEQTestStringConcatenation01__2_()
         {
             string code = @"s1='a';s2=""bcd"";s3=s1+s2;s4=""abc"";s5='d';s6=s4+s5;s7=""ab"";s8=""cd"";s9=s7+s8;";
@@ -16550,13 +16508,6 @@ namespace ProtoTest.DebugTests
         public void DebugEQpointer()
         {
             string code = @"// declare a ds pointer __heap int px = 1234321;int size = 16;int a[size];a[5] = 20000;";
-            DebugTestFx.CompareDebugAndRunResults(code);
-        }
-
-        [Test]
-        public void DebugEQpoints_5()
-        {
-            string code = @"[Associative]{	external (""ProtoAcDcGeometry"") def getProtoGeometryLibrary : int ();	external native (""ProtoHostAccess"") def DC_getHostEntityID : hostentityid ();	external native (""ProtoGeometryEntity"") def DC_Point_update : int ( id : hostentityid, hostid : int, x : double, y : double, z : double);	hostid1 = getProtoGeometryLibrary();	id1 = DC_getHostEntityID();	p1 = DC_Point_update(id1, hostid1, 1, 10, 10);	id2 = DC_getHostEntityID();	p2 = DC_Point_update(id2, hostid1, 2, 10, 10);	id3 = DC_getHostEntityID();	p3 = DC_Point_update(id3, hostid1, 3, 10, 10);	id4 = DC_getHostEntityID();	p4 = DC_Point_update(id4, hostid1, 4, 10, 10);}";
             DebugTestFx.CompareDebugAndRunResults(code);
         }
 
