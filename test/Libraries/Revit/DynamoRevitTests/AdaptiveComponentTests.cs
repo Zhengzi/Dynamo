@@ -19,7 +19,7 @@ namespace Dynamo.Tests
             string testFilePath = Path.Combine(_testPath, @".\AdaptiveComponent\AdaptiveComponentByFace.dyn");
             string testPath = Path.GetFullPath(testFilePath);
 
-            model.Open(testPath);
+            Controller.DynamoViewModel.OpenCommand.Execute(testPath);
 
             AssertNoDummyNodes();
 
@@ -39,15 +39,20 @@ namespace Dynamo.Tests
             string testFilePath = Path.Combine(_testPath, @".\AdaptiveComponent\AdaptiveComponentByCurve.dyn");
             string testPath = Path.GetFullPath(testFilePath);
 
-            model.Open(testPath);
+            Controller.DynamoViewModel.OpenCommand.Execute(testPath);
 
             AssertNoDummyNodes();
 
             // check all the nodes and connectors are loaded
-            Assert.AreEqual(11, model.CurrentWorkspace.Nodes.Count);
-            Assert.AreEqual(9, model.CurrentWorkspace.Connectors.Count);
+            Assert.AreEqual(6, model.CurrentWorkspace.Nodes.Count);
+            Assert.AreEqual(5, model.CurrentWorkspace.Connectors.Count);
 
-            Assert.DoesNotThrow(() => dynSettings.Controller.RunExpression());
+            RunCurrentModel();
+
+            // Check for number of Family Instance Creation
+            var allElements = "e83c14bb-864f-4730-900f-0905dac6dcad";
+            AssertPreviewCount(allElements, 10);
+
         }
 
         [Test]
@@ -59,7 +64,7 @@ namespace Dynamo.Tests
             string testFilePath = Path.Combine(_testPath, @".\AdaptiveComponent\AdaptiveComponent.dyn");
             string testPath = Path.GetFullPath(testFilePath);
 
-            model.Open(testPath);
+            Controller.DynamoViewModel.OpenCommand.Execute(testPath);
 
             AssertNoDummyNodes();
 

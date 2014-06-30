@@ -18,9 +18,8 @@ namespace Dynamo.Tests
     {
         public void OpenModel(string relativeFilePath)
         {
-            var model = Controller.DynamoModel;
             string openPath = Path.Combine(GetTestDirectory(), relativeFilePath);
-            model.Open(openPath);
+            Controller.DynamoViewModel.OpenCommand.Execute(openPath);
         }
 
         public void RunModel(string relativeDynFilePath)
@@ -91,6 +90,35 @@ namespace Dynamo.Tests
             Assert.IsNotNull(mirror);
             var classInfo = mirror.GetData().Class;
             Assert.AreEqual(classInfo.ClassName, className);
+        }
+
+        public void AssertPreviewCount(string guid, int count)
+        {
+            string varname = GetVarName(guid);
+            var mirror = GetRuntimeMirror(varname);
+            Assert.IsNotNull(mirror);
+
+            var data = mirror.GetData();
+            Assert.IsTrue(data.IsCollection);
+            Assert.AreEqual(count, data.GetElements().Count);
+        }
+
+        public object GetPreviewValue(string guid)
+        {
+            string varname = GetVarName(guid);
+            var mirror = GetRuntimeMirror(varname);
+            Assert.IsNotNull(mirror);
+
+            return mirror.GetData().Data;
+        }
+
+        public object GetPreviewValueAtIndex(string guid, int index)
+        {
+            string varname = GetVarName(guid);
+            var mirror = GetRuntimeMirror(varname);
+            Assert.IsNotNull(mirror);
+
+            return mirror.GetData().GetElements()[index].Data;
         }
 
         private void SelectivelyAssertValues(MirrorData data, Dictionary<int, object> selectedValues)
